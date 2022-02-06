@@ -1,3 +1,5 @@
+import 'package:backup_sqlite_database_app/database/dao/base_dao.dart';
+import 'package:backup_sqlite_database_app/models/base.dart';
 import 'package:backup_sqlite_database_app/screens/formulario.dart';
 import 'package:flutter/material.dart';
 
@@ -10,26 +12,56 @@ class Principal extends StatefulWidget {
 
 class _PrincipalState extends State<Principal> {
   final String _nomeTela = "Backup SQLite Database";
+  final BaseDao _baseDao = BaseDao();
 
-  final TextEditingController _databaseController = TextEditingController();
+  List<Base> _bases = [];
+  Base? _selectedBase;
+
+  @override
+  void initState() {
+    refreshView();
+    super.initState();
+  }
+
+  void refreshView() async {
+    _baseDao
+        .lista()
+        .then((bases) => {
+              setState(() {
+                _bases = bases;
+              })
+            })
+        .catchError((onError) {
+      aviso('Erro ao realizar a consulta', Colors.red);
+    });
+  }
+
+  void aviso(String texto, Color cor) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(texto),
+        backgroundColor: cor,
+      ),
+    );
+  }
 
   void backup() {
-    debugPrint('Backup...');
+    debugPrint('Backup...${_selectedBase?.nome}');
   }
 
   void restore() {
-    debugPrint('Restore...');
+    debugPrint('Restore...${_selectedBase?.nome}');
   }
 
   void openForm() async {
     debugPrint('Open Form...');
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const Formulario(),
-      ),
-    );
-
-    //carregar Databases
+    await Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (context) => const Formulario(),
+          ),
+        )
+        .then((value) => refreshView());
   }
 
   @override
@@ -46,16 +78,21 @@ class _PrincipalState extends State<Principal> {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(left: 24.0, top: 16.0),
-                  child: SizedBox(
-                    width: 256.0,
-                    child: TextFormField(
-                      controller: _databaseController,
-                      decoration: const InputDecoration(
-                        labelText: 'Database',
-                      ),
-                      textInputAction: TextInputAction.next,
-                      onFieldSubmitted: (value) => {},
-                    ),
+                  child: DropdownButton<Base>(
+                    icon: const Icon(Icons.arrow_downward),
+                    value: _bases.isEmpty ? null : _bases[0],
+                    onChanged: (Base? base) {
+                      debugPrint('${base?.nome}');
+                      setState(() {
+                        _selectedBase = base;
+                      });
+                    },
+                    items: _bases.map<DropdownMenuItem<Base>>((Base base) {
+                      return DropdownMenuItem<Base>(
+                        value: base,
+                        child: Text(base.nome),
+                      );
+                    }).toList(),
                   ),
                 ),
                 Padding(

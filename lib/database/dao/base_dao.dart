@@ -39,14 +39,17 @@ class BaseDao {
   }
 
   Future<List<Base>> lista() async {
-    final List<Map<String, dynamic>> maps = await consulta();
+    final Database db = await getDatabase();
+    final List<Map<String, dynamic>> maps = await db.query(tableName);
     final List<Base> bases = toList(maps);
     return bases;
   }
 
-  Future<List<Map<String, dynamic>>> consulta() async {
+  Future<List<Map<String, dynamic>>> consulta(
+      String where, List<dynamic> whereArgs) async {
     final Database db = await getDatabase();
-    final List<Map<String, dynamic>> maps = await db.query(tableName);
+    final List<Map<String, dynamic>> maps =
+        await db.query(tableName, where: where, whereArgs: whereArgs);
     return maps;
   }
 

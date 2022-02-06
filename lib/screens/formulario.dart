@@ -1,6 +1,5 @@
 import 'package:backup_sqlite_database_app/database/dao/base_dao.dart';
 import 'package:backup_sqlite_database_app/models/base.dart';
-import 'package:backup_sqlite_database_app/screens/principal.dart';
 import 'package:flutter/material.dart';
 
 class Formulario extends StatefulWidget {
@@ -40,7 +39,7 @@ class _FormularioState extends State<Formulario> {
     }
 
     salva(Base(0, nome, caminho));
-    openPrincipal();
+    volta(context);
   }
 
   void salva(Base base) async {
@@ -50,12 +49,8 @@ class _FormularioState extends State<Formulario> {
         .catchError((onError) => aviso('Erro ao salvar!', Colors.red));
   }
 
-  void openPrincipal() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const Principal(),
-      ),
-    );
+  void volta(BuildContext context) {
+    Navigator.pop(context);
   }
 
   @override
