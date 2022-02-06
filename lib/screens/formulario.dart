@@ -1,3 +1,5 @@
+import 'package:backup_sqlite_database_app/database/dao/base_dao.dart';
+import 'package:backup_sqlite_database_app/models/base.dart';
 import 'package:backup_sqlite_database_app/screens/principal.dart';
 import 'package:flutter/material.dart';
 
@@ -12,9 +14,9 @@ class _FormularioState extends State<Formulario> {
   final String _nomeTela = "Formulário";
   final TextEditingController _nomeController = TextEditingController();
   final TextEditingController _caminhoController = TextEditingController();
+  final BaseDao _baseDao = BaseDao();
 
   void aviso(String texto, Color cor) {
-    debugPrint('### $texto ###');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(texto),
@@ -37,12 +39,15 @@ class _FormularioState extends State<Formulario> {
       return;
     }
 
-    salva();
+    salva(Base(0, nome, caminho));
     openPrincipal();
   }
 
-  void salva() async {
-    debugPrint('Salva...');
+  void salva(Base base) async {
+    _baseDao
+        .inclui(base)
+        .then((value) => aviso('Salvo com sucesso!', Colors.green))
+        .catchError((onError) => aviso('Erro ao salvar!', Colors.red));
   }
 
   void openPrincipal() {
