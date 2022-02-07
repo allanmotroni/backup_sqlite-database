@@ -1,6 +1,8 @@
 import 'package:backup_sqlite_database_app/database/dao/base_dao.dart';
 import 'package:backup_sqlite_database_app/models/base.dart';
 import 'package:backup_sqlite_database_app/screens/formulario.dart';
+import 'package:backup_sqlite_database_app/services/backup_service.dart';
+import 'package:backup_sqlite_database_app/services/restore_service.dart';
 import 'package:flutter/material.dart';
 
 class Principal extends StatefulWidget {
@@ -46,15 +48,27 @@ class _PrincipalState extends State<Principal> {
   }
 
   void backup() {
-    debugPrint('Backup...${_selectedBase?.nome}');
+    try {
+      debugPrint('Backup...${_selectedBase?.nome}');
+      final BackupService backupService = BackupService(_selectedBase!.caminho);
+      backupService.execute();
+    } catch (e) {
+      aviso(e.toString(), Colors.red);
+    }
   }
 
   void restore() {
-    debugPrint('Restore...${_selectedBase?.nome}');
+    try {
+      debugPrint('Restore...${_selectedBase?.nome}');
+      final RestoreService restoreService =
+          RestoreService(_selectedBase!.caminho);
+      restoreService.execute();
+    } catch (e) {
+      aviso(e.toString(), Colors.red);
+    }
   }
 
   void openForm() async {
-    debugPrint('Open Form...');
     await Navigator.of(context)
         .push(
           MaterialPageRoute(

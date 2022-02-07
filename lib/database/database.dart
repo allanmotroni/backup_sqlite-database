@@ -5,18 +5,22 @@ import 'package:sqflite/sqflite.dart';
 
 const String _databaseName = 'backup-sqlite-database.db';
 
+Future<String> getPath() {
+  return getDatabasesPath();
+}
+
 Future<Database> getDatabase() async {
-  final String path = join(await getDatabasesPath(), _databaseName);
+  final String path = join(await getPath(), _databaseName);
 
   //await excluirBaseDeDados(path);
 
   return await openDatabase(
     path,
+    version: 1,
     onCreate: (db, version) async {
       debugPrint('Creating Tables...');
       await createTables(db);
     },
-    version: 2,
     // onUpgrade: (db, oldVersion, newVersion) async =>
     //     await alterTables(db, oldVersion, newVersion),
   );
