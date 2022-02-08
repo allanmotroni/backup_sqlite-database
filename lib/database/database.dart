@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-const String _databaseName = 'backup-sqlite-database.db';
+String get databaseName => 'backup-sqlite-database.db';
 
 Future<String> getPath() {
   return getDatabasesPath();
 }
 
 Future<Database> getDatabase() async {
-  final String path = join(await getPath(), _databaseName);
+  final String path = join(await getPath(), databaseName);
 
   //await excluirBaseDeDados(path);
 

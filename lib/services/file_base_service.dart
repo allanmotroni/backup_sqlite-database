@@ -1,6 +1,7 @@
-//import 'dart:io';
+import 'dart:io';
+import 'package:backup_sqlite_database_app/database/database.dart';
 import 'package:flutter/material.dart';
-//import 'package:path/path.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class FileBaseService {
   final String from;
@@ -9,19 +10,44 @@ class FileBaseService {
   FileBaseService(this.from, this.to);
 
   void copy() async {
-    debugPrint('### COPY... From: $from To: $to ###');
+    final String dbFolder = await getPath();
+    File source1 = File('$dbFolder/$databaseName');
 
-    // final bool dir =
-    //     await Directory('/storage/emulated/0/Android/data').exists();
+    // const String to = '/storage/emulated/0/SqliteBackup';
+    const String to = '/storage/emulated/0';
 
-    // const String from =
-    //     "/data/user/0/com.example.backup_sqlite_database_app/databases/backup-sqlite-database.db";
-    // File file = File(from);
+    //debugPrint('### COPY... From: $from To: $to ###');
 
-    // String fileNameWithExtension = basename(from);
-    // final String to = "/storage/emulated/0/Android/data/$fileNameWithExtension";
+    final Directory copyTo = Directory(to);
 
-    // File newFile = await file.copy(to);
-    // debugPrint('New File path -> ${newFile.path}');
+//bool permission = await requestPermissionHelper(Permission.manageExternalStorage);
+
+    if (await copyTo.exists()) {
+      var status = await Permission.storage.status;
+      if (status.isGranted) {
+        await Permission.storage.request();
+      }
+      // status = await Permission.manageExternalStorage.status;
+      // if (status.isGranted) {
+      //   await Permission.manageExternalStorage.request();
+      // }
+
+      // status = await Permission.accessMediaLocation.status;
+      // if (status.isGranted) {
+      //   await Permission.accessMediaLocation.request();
+      // }
+    } else {
+      debugPrint('Not exist');
+      if (await Permission.storage.request().isGranted &&
+          await Permission.manageExternalStorage.request().isGranted &&
+          await Permission.accessMediaLocation.request().isGranted) {
+        await copyTo.create();
+      } else {
+        debugPrint('Give permission');
+      }
+    }
+
+    final String newPath = "${copyTo.path}/$databaseName";
+    await source1.copy(newPath);
   }
 }
